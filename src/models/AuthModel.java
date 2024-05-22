@@ -1,33 +1,43 @@
 package models;
 
-import org.json.simple.JSONArray;
-import org.json.simple.JSONObject;
-import org.json.simple.parser.JSONParser;
-import org.json.simple.parser.ParseException;
-import java.io.FileReader;
-import java.io.IOException;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 
 public class AuthModel {
-    private JSONArray users;
+    private Connection connection;
+    
+    String url = "jdbc:mysql://sql.freedb.tech:3306/freedb_Bella Italia";
+    String usuario = "freedb_isaac";
+    String contraseña = "tQv#3G2fdCgAuM?";
+    
+    public AuthModel(String url, String usuario, String contraseña) throws SQLException {
+        connection = DriverManager.getConnection(url, usuario, contraseña);
+    }
 
-    public AuthModel() {
-        try {
-            JSONParser parser = new JSONParser();
-            Object obj = parser.parse(new FileReader("user.json"));
-            JSONObject jsonObject = (JSONObject) obj;
-            users = (JSONArray) jsonObject.get("users");
-        } catch (IOException | ParseException e) {
+    public boolean autenticarUsuario(String correo, String contraseña) {
+        String consulta = "SELECT * FROM tablaUsuarios WHERE correo = ? AND contraseña = ?";
+        try (PreparedStatement statement = connection.prepareStatement(consulta)) {
+            statement.setString(1, correo);
+            statement.setString(2, contraseña);
+            try (ResultSet resultSet = statement.executeQuery()) {
+                return resultSet.next(); 
+            }
+        } catch (SQLException e) {
             e.printStackTrace();
+            return false;
         }
     }
 
-    public boolean authenticate(String username, String password) {
-        for (Object obj : users) {
-            JSONObject user = (JSONObject) obj;
-            if (user.get("username").equals(username) && user.get("password").equals(password)) {
-                return true;
+    public void cerrarConexion() {
+        try {
+            if (connection != null && !connection.isClosed()) {
+                connection.close();
             }
+        } catch (SQLException e) {
+            e.printStackTrace();
         }
-        return false;
     }
 }

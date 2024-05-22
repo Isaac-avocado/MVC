@@ -2,9 +2,7 @@ package controllers;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-
 import javax.swing.JOptionPane;
-
 import models.AuthModel;
 import views.AuthView;
 
@@ -22,13 +20,13 @@ public class AuthController {
     class LoginListener implements ActionListener {
         @Override
         public void actionPerformed(ActionEvent e) {
-            String username = view.getUsername();
-            String password = view.getPassword();
+            String correo = view.getUsername(); 
+            String contraseña = view.getPassword(); 
 
-            if (model.authenticate(username, password)) {
-                JOptionPane.showMessageDialog(view, "Login successful!");
+            if (model.autenticarUsuario(correo, contraseña)) { 
+                JOptionPane.showMessageDialog(view, "¡Inicio de sesión exitoso!");
             } else {
-                view.displayErrorMessage("Invalid username or password.");
+                view.displayErrorMessage("Correo o contraseña inválidos.");
             }
         }
     }
